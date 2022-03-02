@@ -4,11 +4,17 @@ My algorithm solution archives
 
 # compile-run commands (local terminal)
 ## C
+```
 gcc source.c
 a.exe
+```
 ## C++
+```
 gcc source.cpp
 a.exe
+```
 ## Java
+```
 java -encoding utf-8 source.java
 java Main
+```
