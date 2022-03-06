@@ -15,6 +15,6 @@ a.exe
 ```
 ## Java
 ```
-java -encoding utf-8 source.java
+javac -encoding utf-8 source.java
 java Main
 ```
