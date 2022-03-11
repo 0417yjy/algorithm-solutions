@@ -21,28 +21,26 @@ N이 3보다 클 경우, 크기 N의 패턴은 공백으로 채워진 가운데�
 #include <stdio.h>
 #include <stdlib.h>
 
-void fill_pattern(int **board, int x, int y, int n) {
+void fill_pattern(char **board, int x, int y, int n) {
     int i, j;
-    if(n == 1) {
+    int ti, tj;
+    if(n == 1) {        
         board[x][y] = '*';        
     }
-    else {
+    else {        
         for(i=0;i<n;i += n / 3) {
             for(j=0;j<n;j += n / 3) {
-                // 잘 생각해보자.. 무언가 방법이 있을 것
-                if((i  / 3) % 3 == 1 && (j  / 3) % 3 == 1) {
-                    printf(" ");
-                } else {
-                    fill_pattern(n / 3);
+                if((i / (n / 3)) % 3 == 1 && (j / (n / 3)) % 3 == 1) {
+                } else {                    
+                    fill_pattern(board, x + i, y + j, n / 3);
                 }
-            }            
-            printf("\n");
+            }
         }
     }        
 }
 
 int main(void) {
-    int n, i;
+    int n, i, j;
     char **board;
     scanf("%d", &n);
 
@@ -51,7 +49,20 @@ int main(void) {
         board[i] = (char*)malloc(sizeof(char) * n);
     }
 
+    for(i=0;i<n;i++) {
+        for(j=0;j<n;j++) {
+            board[i][j] = ' ';
+        }
+    }
+
     fill_pattern(board, 0, 0, n);
+
+    for(i=0;i<n;i++) {
+        for(j=0;j<n;j++) {
+            printf("%c", board[i][j]);
+        }
+        printf("\n");
+    }
 
     return 0;
 }
