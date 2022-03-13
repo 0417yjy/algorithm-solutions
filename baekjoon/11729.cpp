@@ -33,24 +33,70 @@
 
 using namespace std;
 
-int get_hanoi_cnt(stack<int> *stack_arr, stack<pair<int,int>> history, int &cnt) {
+void print_stack_sub(stack<int> s) {
+    if(s.empty()) {
+        return;
+    }
+
+    int x = s.top();
+    s.pop();
+
+    print_stack_sub(s);
+
+    cout << x << ' ';
+
+    s.push(x);
+}
+
+void print_stack(stack<int> *stack_int) {
+    for(int i=0;i<3;i++) {
+        print_stack_sub(stack_int[i]);
+        cout << endl;
+    }
+}
+
+int get_hanoi_cnt(stack<int> *stack_arr, stack<pair<int,int>> history, int &cnt, stack<pair<int,int>> &answer) {
+    print_stack(stack_arr);
+    if(stack_arr[0].empty() && stack_arr[1].empty()) {
+        return history.size();
+    }
+
     for(int i=0;i<3;i++) {
         for(int j=0;j<3;j++) {
             if(i != j) {
                 // 다른 스택에 둘 수 있는지 체크
                 if(stack_arr[j].empty() || stack_arr[j].top() > stack_arr[i].top()) {
-                    // 가능하면 그렇게 옮기고, 다음 턴을 체크
-                    int new_cnt = get_hanoi_cnt(stack_arr, history, cnt);
-                    if(new_cnt < cnt) {
-                        cnt = new_cnt;
-                        his
-                    }
+                    // 마지막 히스토리와 같은건 제외
+                    cout << "i: " << i << " j: " << j << endl;
+                    if(!history.empty() && i == history.top().second && j == history.top().first)  {
+                        cout << "was history" << endl;
+                        // do nothing
+                    } else {
+                        // 가능하면 그렇게 옮기고, 다음 턴을 체크
+                        stack<pair<int,int>> new_move_history = history;
+                        new_move_history.push(make_pair(i, j));
+
+                        // i의 탑을 j로 옮김
+                        int moved = stack_arr[i].top();
+                        stack_arr[i].pop();
+                        stack_arr[j].push(moved);
+
+                        int new_cnt = get_hanoi_cnt(stack_arr, new_move_history, cnt, answer);
+                        if(new_cnt < cnt) {
+                            cnt = new_cnt;
+                            answer = new_move_history;
+                        }
+
+                        // 계산 끝났으면 다시 되돌려놓음
+                        stack_arr[j].pop();
+                        stack_arr[i].push(moved);
+                    }   
                 }
             }
         }
-        
-        
     }
+
+    return cnt;
 }
 
 int main(void) {
@@ -62,10 +108,12 @@ int main(void) {
 
     // initialize
     for(int i=n;i>=1;i--) {
-        stack_arr[0].push(n);
+        stack_arr[0].push(i);
     }
 
-    cnt = get_hanoi_cnt(stack_arr, history_stack, cnt);
+    cnt = get_hanoi_cnt(stack_arr, history_stack, cnt, answer_stack);
+
+    printf("%d\n", cnt);
 
     return 0;
 }
