@@ -43,3 +43,48 @@ i번 세로선의 결과가 i번이 나오도록 사다리 게임을 조작하�
 
 3
 """
+
+def is_good_ladder(n, m, garo_list):
+    pass
+
+n, m, h = map(int, input().split())
+garo_list = []
+odd_list = []
+board = [[0]*n for _ in range(m)]
+available_list = []
+
+for i in range(n - 1):
+    garo_list.append([])
+
+for i in range(m):
+    ypos, xpos = map(int, input().split())
+    garo_list[xpos - 1].append(ypos - 1)
+    board[ypos - 1][xpos - 1] = 1
+    board[ypos - 1][xpos] = -1
+
+for i in range(len(board)):
+    print(board[i])
+
+for i in range(len(garo_list)):
+    if len(garo_list[i]) % 2:
+        odd_list.append(i)
+
+if len(odd_list) > 3:
+    print(-1)
+    quit()
+
+for i in odd_list:
+    for j in range(m):
+        if board[j][i] == 0 and ((i < n - 1 and board[j][i + 1] == 0) or (i == n - 1)):
+            element = {}
+            element['pair'] = tuple([j, i])
+            element['disable'] = []
+            if i > 0:
+                element['disable'].append(tuple([j, i - 1]))
+            if i < n:
+                element['disable'].append(tuple([j, i + 1]))
+
+            available_list.append(element)
+
+for i in available_list:
+    print(i)
