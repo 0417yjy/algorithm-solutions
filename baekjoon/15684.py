@@ -43,39 +43,56 @@ i번 세로선의 결과가 i번이 나오도록 사다리 게임을 조작하�
 
 3
 """
+from itertools import combinations
+from copy import deepcopy
 
-def is_good_ladder(n, m, garo_list):
-    pass
+def is_good_ladder(board):
+    row = len(board)
+    col = len(board[0])
+
+    for i in range(col):
+        current = i
+        for j in range(row):
+            if board[j][current] != 0:
+                current += board[j][current]
+        if current != i:
+            return False
+
+    return True
+    
+
+def insert_garos(p_board, garo_list):
+    disabled_list = []
+    for garo in garo_list:
+        added_pair = garo['pair']
+
+        try:
+            disabled_list.index(added_pair)
+            return False
+        except:
+            # 가로줄 두기
+            p_board[added_pair[0]][added_pair[1]] = 1
+            p_board[added_pair[0]][added_pair[1] + 1] = -1
+            disabled_list.extend(garo['disable'])        
+    
+    return True
 
 n, m, h = map(int, input().split())
-garo_list = []
-odd_list = []
-board = [[0]*n for _ in range(m)]
+board_org = [[0]*n for _ in range(m + 1)]
 available_list = []
-
-for i in range(n - 1):
-    garo_list.append([])
 
 for i in range(m):
     ypos, xpos = map(int, input().split())
-    garo_list[xpos - 1].append(ypos - 1)
-    board[ypos - 1][xpos - 1] = 1
-    board[ypos - 1][xpos] = -1
+    board_org[ypos - 1][xpos - 1] = 1
+    board_org[ypos - 1][xpos] = -1
 
-for i in range(len(board)):
-    print(board[i])
+if is_good_ladder(board_org):
+    print(0)
+    exit()
 
-for i in range(len(garo_list)):
-    if len(garo_list[i]) % 2:
-        odd_list.append(i)
-
-if len(odd_list) > 3:
-    print(-1)
-    quit()
-
-for i in odd_list:
-    for j in range(m):
-        if board[j][i] == 0 and ((i < n - 1 and board[j][i + 1] == 0) or (i == n - 1)):
+for i in range(n - 1):
+    for j in range(m + 1):
+        if board_org[j][i] == 0 and ((i < n - 1 and board_org[j][i + 1] == 0) or (i == n - 1)):
             element = {}
             element['pair'] = tuple([j, i])
             element['disable'] = []
@@ -86,5 +103,13 @@ for i in odd_list:
 
             available_list.append(element)
 
-for i in available_list:
-    print(i)
+for i in range(1, 4):
+    combis = list(combinations(available_list, i))
+    for j in combis:
+        board = deepcopy(board_org)
+        if insert_garos(board, j):            
+            if is_good_ladder(board):
+                print(i)
+                exit()
+
+print(-1)
