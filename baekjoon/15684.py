@@ -55,27 +55,22 @@ def is_good_ladder(board):
         for j in range(row):
             if board[j][current] != 0:
                 current += board[j][current]
+            if abs(current - i) > row - 1 - j:
+                return False
         if current != i:
             return False
 
     return True
     
 
-def insert_garos(p_board, garo_list):
-    disabled_list = []
-    for garo in garo_list:
-        added_pair = garo['pair']
-
-        try:
-            disabled_list.index(added_pair)
-            return False
-        except:
-            # 가로줄 두기
-            p_board[added_pair[0]][added_pair[1]] = 1
-            p_board[added_pair[0]][added_pair[1] + 1] = -1
-            disabled_list.extend(garo['disable'])        
-    
-    return True
+def insert_garos(p_board, added_pair):
+    if p_board[added_pair[0]][added_pair[1]] == 0:
+        # 가로줄 두기
+        p_board[added_pair[0]][added_pair[1]] = 1
+        p_board[added_pair[0]][added_pair[1] + 1] = -1
+        return True
+    else:
+        return False
 
 n, m, h = map(int, input().split())
 board_org = [[0]*n for _ in range(m + 1)]
@@ -93,23 +88,27 @@ if is_good_ladder(board_org):
 for i in range(n - 1):
     for j in range(m + 1):
         if board_org[j][i] == 0 and ((i < n - 1 and board_org[j][i + 1] == 0) or (i == n - 1)):
-            element = {}
-            element['pair'] = tuple([j, i])
-            element['disable'] = []
-            if i > 0:
-                element['disable'].append(tuple([j, i - 1]))
-            if i < n:
-                element['disable'].append(tuple([j, i + 1]))
+            available_list.append(tuple([j, i]))
 
-            available_list.append(element)
+inserted_set = {}
 
 for i in range(1, 4):
-    combis = list(combinations(available_list, i))
-    for j in combis:
-        board = deepcopy(board_org)
-        if insert_garos(board, j):            
+    combis = list(combinations(available_list, i))    
+    combis.sort(key=lambda e:len(e))
+    for pair_tuple in combis:
+        if i > 1:
+            try:                
+                board = deepcopy(inserted_set[pair_tuple[:-1]])
+            except:
+                continue
+        else:
+            board = deepcopy(board_org)
+
+        if insert_garos(board, pair_tuple[-1]):
             if is_good_ladder(board):
                 print(i)
                 exit()
+            elif i < 3:
+                inserted_set[pair_tuple] = board
 
 print(-1)
