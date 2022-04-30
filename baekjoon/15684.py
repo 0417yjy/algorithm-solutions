@@ -74,7 +74,7 @@ def insert_garos(p_board, added_pair):
 
 n, m, h = map(int, input().split())
 board_org = [[0]*n for _ in range(m + 1)]
-available_list = []
+available_set = set()
 
 for i in range(m):
     ypos, xpos = map(int, input().split())
@@ -88,12 +88,12 @@ if is_good_ladder(board_org):
 for i in range(n - 1):
     for j in range(m + 1):
         if board_org[j][i] == 0 and ((i < n - 1 and board_org[j][i + 1] == 0) or (i == n - 1)):
-            available_list.append(tuple([j, i]))
+            available_set.add(tuple([j, i]))
 
 inserted_set = {}
 
 for i in range(1, 4):
-    combis = list(combinations(available_list, i))    
+    combis = list(combinations(available_set, i))    
     combis.sort(key=lambda e:len(e))
     for pair_tuple in combis:
         if i > 1:
