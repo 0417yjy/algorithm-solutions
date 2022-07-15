@@ -10,7 +10,7 @@ a.exe
 ```
 ## C++
 ```
-gcc source.cpp
+g++ source.cpp
 a.exe
 ```
 ## Java
