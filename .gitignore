@@ -1,6 +1,9 @@
 # vscode config
 .vscode
 
+# build files
+build
+
 # compile results
 *.class
 *.exe
