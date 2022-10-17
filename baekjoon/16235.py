@@ -64,74 +64,65 @@ def is_valid_point(x: int, y: int, n: int):
         return True
 
 
-def get_new_tree(x: int, y: int, age: int):
-    tree = {}
-    tree["x"] = x
-    tree["y"] = y
-    tree["age"] = age
-    return tree
-
-
-board = []
 n, m, k = map(int, input().split())
+val_board = [[5] * n for _ in range(n)]
+add_board = []
 for i in range(n):
-    board_row = []
-    input_list = list(map(int, input().split()))
-    for add in input_list:
-        board_element = {}
-        board_element["add"] = add
-        board_element["val"] = 5
-        board_row.append(board_element)
-    board.append(board_row)
+    add_board.append(list(map(int, input().split())))
 
-tree_list = []
+tree_list = [[[]*n for _ in range(n)] for _ in range(n)]
 for i in range(m):
     x, y, age = map(int, input().split())
-    tree = get_new_tree(x - 1, y - 1, age)
-    tree_list.append(tree)
+    tree_list[x - 1][y - 1].append(age)
 
-tree_list.sort(key=lambda e: e["age"])
 for t in range(k):
-    dead_trees = []
     # 봄에는 나무가 자신의 나이만큼 양분을 먹고, 나이가 1 증가한다. 각각의 나무는 나무가 있는 1×1 크기의 칸에 있는 양분만 먹을 수 있다. 하나의 칸에 여러 개의 나무가 있다면, 나이가 어린 나무부터 양분을 먹는다. 만약, 땅에 양분이 부족해 자신의 나이만큼 양분을 먹을 수 없는 나무는 양분을 먹지 못하고 즉시 죽는다.
-    for tree in tree_list:
-        if board[tree["x"]][tree["y"]]["val"] >= tree["age"]:
-            board[tree["x"]][tree["y"]]["val"] -= tree["age"]
-            tree["age"] += 1
-        else:
-            dead_trees.append(tree)
+    for i in range(n):
+        for j in range(n):
+            cnt = 0
+            for k in range(len(tree_list[i][j])):
+                if tree_list[i][j][k] <= val_board[i][j]:
+                    val_board[i][j] -= tree_list[i][j][k]
+                    tree_list[i][j][k] += 1
+                    cnt += 1
+                else:
+                    break
 
-    # 여름에는 봄에 죽은 나무가 양분으로 변하게 된다. 각각의 죽은 나무마다 나이를 2로 나눈 값이 나무가 있던 칸에 양분으로 추가된다. 소수점 아래는 버린다.
-    for tree in dead_trees:
-        tree_list.remove(tree)
-        board[tree["x"]][tree["y"]]["val"] += math.trunc(tree["age"] / 2)
+            # 여름에는 봄에 죽은 나무가 양분으로 변하게 된다. 각각의 죽은 나무마다 나이를 2로 나눈 값이 나무가 있던 칸에 양분으로 추가된다. 소수점 아래는 버린다.
+            for idx in range(cnt, len(tree_list[i][j])):
+                val_board[i][j] += math.trunc(tree_list[i][j][idx] / 2)
 
-    # 가을에는 나무가 번식한다. 번식하는 나무는 나이가 5의 배수이어야 하며, 인접한 8개의 칸에 나이가 1인 나무가 생긴다.
-    # 어떤 칸 (r, c)와 인접한 칸은 (r-1, c-1), (r-1, c), (r-1, c+1), (r, c-1), (r, c+1), (r+1, c-1), (r+1, c), (r+1, c+1) 이다. 상도의 땅을 벗어나는 칸에는 나무가 생기지 않는다.
-    for tree in tree_list:
-        if tree["age"] % 5 == 0:
-            x = tree["x"]
-            y = tree["y"]
-            if is_valid_point(x - 1, y - 1, n):
-                tree_list.insert(0, get_new_tree(x - 1, y - 1, 1))
-            if is_valid_point(x - 1, y, n):
-                tree_list.insert(0, get_new_tree(x - 1, y, 1))
-            if is_valid_point(x - 1, y + 1, n):
-                tree_list.insert(0, get_new_tree(x - 1, y + 1, 1))
-            if is_valid_point(x, y - 1, n):
-                tree_list.insert(0, get_new_tree(x, y - 1, 1))
-            if is_valid_point(x, y + 1, n):
-                tree_list.insert(0, get_new_tree(x, y + 1, 1))
-            if is_valid_point(x + 1, y - 1, n):
-                tree_list.insert(0, get_new_tree(x + 1, y - 1, 1))
-            if is_valid_point(x + 1, y, n):
-                tree_list.insert(0, get_new_tree(x + 1, y, 1))
-            if is_valid_point(x + 1, y + 1, n):
-                tree_list.insert(0, get_new_tree(x + 1, y + 1, 1))
+            tree_list[i][j] = tree_list[i][j][:cnt]
 
-    # 겨울에는 S2D2가 땅을 돌아다니면서 땅에 양분을 추가한다. 각 칸에 추가되는 양분의 양은 A[r][c]이고, 입력으로 주어진다.
-    for board_row in board:
-        for cell in board_row:
-            cell["val"] += cell["add"]
+    for i in range(n):
+        for j in range(n):
+            # 가을에는 나무가 번식한다. 번식하는 나무는 나이가 5의 배수이어야 하며, 인접한 8개의 칸에 나이가 1인 나무가 생긴다.
+            # 어떤 칸 (r, c)와 인접한 칸은 (r-1, c-1), (r-1, c), (r-1, c+1), (r, c-1), (r, c+1), (r+1, c-1), (r+1, c), (r+1, c+1) 이다. 상도의 땅을 벗어나는 칸에는 나무가 생기지 않는다.
+            for age in tree_list[i][j]:
+                if age % 5 == 0:
+                    if is_valid_point(i - 1, j - 1, n):
+                        tree_list[i - 1][j - 1].insert(0, 1)
+                    if is_valid_point(i - 1, j, n):
+                        tree_list[i - 1][j].insert(0, 1)
+                    if is_valid_point(i - 1, j + 1, n):
+                        tree_list[i - 1][j + 1].insert(0, 1)
+                    if is_valid_point(i, j - 1, n):
+                        tree_list[i][j - 1].insert(0, 1)
+                    if is_valid_point(i, j + 1, n):
+                        tree_list[i][j + 1].insert(0, 1)
+                    if is_valid_point(i + 1, j - 1, n):
+                        tree_list[i + 1][j - 1].insert(0, 1)
+                    if is_valid_point(i + 1, j, n):
+                        tree_list[i + 1][j].insert(0, 1)
+                    if is_valid_point(i + 1, j + 1, n):
+                        tree_list[i + 1][j + 1].insert(0, 1)
 
-print(len(tree_list))
+            # 겨울에는 S2D2가 땅을 돌아다니면서 땅에 양분을 추가한다. 각 칸에 추가되는 양분의 양은 A[r][c]이고, 입력으로 주어진다.
+            val_board[i][j] += add_board[i][j]
+
+tree_cnt = 0
+for i in range(n):
+    for j in range(n):
+        tree_cnt += len(tree_list[i][j])
+
+print(tree_cnt)
