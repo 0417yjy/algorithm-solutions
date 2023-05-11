@@ -20,41 +20,39 @@
 5 12
 
 14
+----------------------------------- 예제 -----------------------------------
+5 7
+2 4
+4 3
+1 1
+8 9
+1 10
+
+17
 """
-n = 0
-k = 0
-
-def dfs_search(used_items, unused_items, current_weights, current_max_val):
-    max_sum_val = 0
-    remain_weights = k - current_weights
-    available_unused_items = list(filter(lambda x:x[0] <= remain_weights, unused_items))
-
-    if len(available_unused_items) <= 0:        
-        return current_max_val
-
-    for item in available_unused_items:
-        used_items.append(item)
-        unused_items.remove(item)
-        current_weights += item[0]
-        current_max_val += item[1]
-
-        sum_val = dfs_search(used_items, unused_items, current_weights, current_max_val)
-        max_sum_val = sum_val if sum_val > max_sum_val else max_sum_val
-
-        current_weights -= item[0]
-        current_max_val -= item[1]
-        used_items.remove(item)
-        unused_items.append(item)
-    return max_sum_val
-
 n, k = map(int, input().split())
 
-used_item_list = []
-unused_item_list = []
-for i in range(n):
+dp_tab = [[0 for _ in range(k + 1)] for _ in range(n + 1)]
+
+def print_map(dp_tab):
+    for row in dp_tab:
+        print(row)
+    print()
+
+for i in range(1, n + 1):
     w, v = map(int, input().split())
-    unused_item_list.append((w, v))
+    if w > k:
+        dp_tab[i] = dp_tab[i - 1]
+        continue
+    dp_tab[i][w] = v
+    # print_map(dp_tab)
+    for j in range(1, k + 1):
+        summed_value = 0
+        if j >= w:
+            summed_value = v + dp_tab[i - 1][j - w]                
+        # 새 물건을 넣기 전 해당 무게의 최댓값, 합.
+        dp_tab[i][j] = max(dp_tab[i - 1][j], summed_value)
+    # print_map(dp_tab)
 
-max_value = dfs_search(used_item_list, unused_item_list, 0, 0)
-
-print(max_value)
+# print_map(dp_tab)
+print(dp_tab[n][k])
